@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transacciones - Gestor Bancario</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .action-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .action-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .action-title {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .action-description {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .transactions-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .btn {
+            background: rgba(40, 167, 69, 0.8);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: rgba(40, 167, 69, 1);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(108, 117, 125, 0.8);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(108, 117, 125, 1);
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+        }
+
+        .filter-group select option {
+            background: #333;
+            color: white;
+        }
+
+        .transactions-table {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .transaction-type {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .type-deposito {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .type-retiro {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .type-transferencia {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            margin: 50px auto;
+            position: relative;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .validation-message {
+            margin-top: 5px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .validation-message.error {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+        }
+
+        .validation-message.warning {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            color: #ffc107;
+        }
+
+        .validation-message.success {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            color: #28a745;
+        }
+
+        .monto-info {
+            margin-top: 5px;
+        }
+
+        .monto-info small {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+        }
+
+        .loading {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 40px;
+            font-size: 1.1rem;
+        }
+
+        .error-message {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .success-message {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            color: #28a745;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .info-message {
+            background: rgba(23, 162, 184, 0.1);
+            border: 1px solid rgba(23, 162, 184, 0.3);
+            color: #17a2b8;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .warning-message {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            color: #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/dashboard" class="back-btn">
+                ← Volver al Dashboard
+            </a>
+            <h1>💰 Gestión de Transacciones</h1>
+            <p>Depósitos, retiros y movimientos bancarios</p>
+        </div>
+
+        
+        <div class="quick-actions">
+            <div class="action-card" onclick="abrirModalTransaccion('DEPOSITO')">
+                <div class="action-icon">💵</div>
+                <div class="action-title">Realizar Depósito</div>
+                <div class="action-description">Agregar dinero a una cuenta</div>
+            </div>
+
+            <div class="action-card" onclick="abrirModalTransaccion('RETIRO')">
+                <div class="action-icon">💸</div>
+                <div class="action-title">Realizar Retiro</div>
+                <div class="action-description">Retirar dinero de una cuenta</div>
+            </div>
+
+            <div class="action-card" onclick="window.location.href='/movimientos'">
+                <div class="action-icon">📊</div>
+                <div class="action-title">Ver por Cuenta</div>
+                <div class="action-description">Movimientos por cuenta específica</div>
+            </div>
+        </div>
+
+        
+        <div class="transactions-section">
+            <div class="section-header">
+                <h2 class="section-title">📋 Historial de Transacciones</h2>
+                <button class="btn btn-secondary" onclick="cargarTransacciones()">
+                    🔄 Actualizar
+                </button>
+            </div>
+
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Tipo:</label>
+                    <select id="filtro-tipo" onchange="filtrarTransacciones()">
+                        <option value="">Todos</option>
+                        <option value="DEPOSITO">Depósitos</option>
+                        <option value="RETIRO">Retiros</option>
+                        <option value="TRANSFERENCIA">Transferencias</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Cuenta:</label>
+                    <select id="filtro-cuenta" onchange="filtrarTransacciones()">
+                        <option value="">Todas las cuentas</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Desde:</label>
+                    <input type="date" id="filtro-fecha-desde" onchange="filtrarTransacciones()">
+                </div>
+                <div class="filter-group">
+                    <label>Hasta:</label>
+                    <input type="date" id="filtro-fecha-hasta" onchange="filtrarTransacciones()">
+                </div>
+            </div>
+
+            <div id="loading" class="loading">
+                Cargando transacciones...
+            </div>
+
+            <div id="error-container"></div>
+
+            <div id="transactions-container" style="display: none;">
+                <div class="transactions-table">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Cuenta</th>
+                                <th>Monto</th>
+                                <th>Descripción</th>
+                                <th>Saldo Final</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-tbody">
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">💰</div>
+                <h2>No hay transacciones</h2>
+                <p>Comienza realizando la primera transacción</p>
+            </div>
+        </div>
+    </div>
+
+   
+    <div id="modal-transaccion" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal()">&times;</span>
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">Nueva Transacción</h2>
+            </div>
+            <form id="form-transaccion" onsubmit="realizarTransaccion(event)">
+                <div class="form-group">
+                    <label for="cuenta-id">Cuenta *</label>
+                    <select id="cuenta-id" name="cuentaId" required>
+                        <option value="">Seleccionar cuenta</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tipo-transaccion">Tipo de Transacción *</label>
+                    <select id="tipo-transaccion" name="tipo" required>
+                        <option value="">Seleccionar tipo</option>
+                        <option value="DEPOSITO">Depósito</option>
+                        <option value="RETIRO">Retiro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="monto">Monto *</label>
+                    <input type="number" id="monto" name="monto" min="1000" step="1000" required
+                           oninput="validarMontoTiempoReal(this)" 
+                           placeholder="Monto mínimo: $1,000">
+                    <div id="monto-validation" class="validation-message"></div>
+                    <div class="monto-info">
+                        <small>💡 Monto mínimo: $1,000</small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" name="descripcion" rows="3" placeholder="Descripción de la transacción (opcional)"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 30px;">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModal()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn">
+                        💾 Realizar Transacción
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
+    <script>
+        // Configurar Axios
+        const api = axios.create({
+            baseURL: 'http://localhost:8090',
+            timeout: 10000,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        let transacciones = [];
+        let cuentas = [];
+
+        // Datos demostracion para cuando el backend no esté disponible
+        const transaccionesDemo = [
+            { id: 1, cuentaId: 1, tipo: 'DEPOSITO', monto: 100000, descripcion: 'Depósito inicial', saldoFinal: 1100000, fechaCreacion: new Date() },
+            { id: 2, cuentaId: 2, tipo: 'RETIRO', monto: 50000, descripcion: 'Retiro ATM', saldoFinal: 450000, fechaCreacion: new Date() }
+        ];
+
+        const cuentasDemo = [
+            { id: 1, numeroCuenta: '1234567890', saldo: 1100000, usuarioId: 1, titular: 'Juan Pérez' },
+            { id: 2, numeroCuenta: '9876543210', saldo: 450000, usuarioId: 2, titular: 'María García' },
+            { id: 3, numeroCuenta: '5555555555', saldo: 750000, usuarioId: 3, titular: 'Carlos López' }
+        ];
+
+        // Configuración de límites y validaciones
+        const LIMITE_TRANSACCION_DIARIO = 5000000; 
+        const MONTO_MINIMO = 10000; 
+        const MONTO_MAXIMO_SIN_CONFIRMACION = 1000000; 
+        
+        let transaccionesHoy = [];
+        let transaccionesFiltradas = [];
+
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarCuentas();
+            cargarTransacciones();
+        });
+
+        async function cargarCuentas() {
+            try {
+                const response = await api.get('/cuentas');
+                cuentas = response.data;
+                
+                poblarSelectsCuentas();
+                
+            } catch (error) {
+                console.warn('Backend no disponible para cuentas, usando datos demo:', error.message);
+                cuentas = [...cuentasDemo];
+                poblarSelectsCuentas();
+            }
+        }
+
+        function poblarSelectsCuentas() {
+            
+            const selectCuentaModal = document.getElementById('cuenta-id');
+            selectCuentaModal.innerHTML = '<option value="">Seleccionar cuenta</option>';
+            
+            
+            const selectFiltro = document.getElementById('filtro-cuenta');
+            selectFiltro.innerHTML = '<option value="">Todas las cuentas</option>';
+            
+            cuentas.forEach(cuenta => {
+                const saldoFormateado = formatearMoneda(cuenta.saldo || 0);
+                const optionModal = `<option value="${cuenta.id}">Cuenta ${cuenta.numeroCuenta || cuenta.id} - ${cuenta.titular || 'Sin titular'} ($${saldoFormateado})</option>`;
+                const optionFiltro = `<option value="${cuenta.id}">Cuenta ${cuenta.numeroCuenta || cuenta.id} - ${cuenta.titular || 'Sin titular'}</option>`;
+                
+                selectCuentaModal.innerHTML += optionModal;
+                selectFiltro.innerHTML += optionFiltro;
+            });
+        }
+
+        async function cargarTransacciones() {
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('transactions-container').style.display = 'none';
+                document.getElementById('empty-state').style.display = 'none';
+                document.getElementById('error-container').innerHTML = '';
+
+                const response = await api.get('/transacciones');
+                transacciones = response.data;
+                transaccionesFiltradas = [...transacciones];
+
+                document.getElementById('loading').style.display = 'none';
+
+                if (transacciones.length === 0) {
+                    document.getElementById('empty-state').style.display = 'block';
+                } else {
+                    mostrarTransacciones(transaccionesFiltradas);
+                    document.getElementById('transactions-container').style.display = 'block';
+                }
+
+                calcularTransaccionesHoy();
+
+            } catch (error) {
+                console.warn('Backend no disponible, usando datos demo:', error.message);
+                document.getElementById('loading').style.display = 'none';
+                
+                
+                transacciones = [...transaccionesDemo];
+                transaccionesFiltradas = [...transacciones];
+                mostrarTransacciones(transaccionesFiltradas);
+                document.getElementById('transactions-container').style.display = 'block';
+                
+                // Mostrar mensaje 
+                mostrarMensaje('ℹ️ Modo demo: Backend no disponible. Usando datos de prueba.', 'info');
+                
+                calcularTransaccionesHoy();
+            }
+        }
+
+        function mostrarTransacciones(transaccionesAMostrar) {
+            const tbody = document.getElementById('transactions-tbody');
+            
+            if (transaccionesAMostrar.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">No se encontraron transacciones</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = transaccionesAMostrar.map(transaccion => {
+                const fecha = new Date(transaccion.fechaCreacion || Date.now()).toLocaleDateString();
+                const cuenta = cuentas.find(c => c.id === transaccion.cuentaId) || {};
+                
+                return `
+                    <tr>
+                        <td>${transaccion.id}</td>
+                        <td>${fecha}</td>
+                        <td><span class="transaction-type type-${(transaccion.tipo || 'deposito').toLowerCase()}">${transaccion.tipo || 'DEPOSITO'}</span></td>
+                        <td>Cuenta ${transaccion.cuentaId} - ${cuenta.titular || 'Sin titular'}</td>
+                        <td>$${formatearMoneda(transaccion.monto || 0)}</td>
+                        <td>${transaccion.descripcion || 'Sin descripción'}</td>
+                        <td>$${formatearMoneda(transaccion.saldoFinal || 0)}</td>
+                        <td>
+                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="verDetalleTransaccion(${transaccion.id})">
+                                👁️ Ver
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filtrarTransacciones() {
+            const tipoFiltro = document.getElementById('filtro-tipo').value;
+            const cuentaFiltro = document.getElementById('filtro-cuenta').value;
+            const fechaDesde = document.getElementById('filtro-fecha-desde').value;
+            const fechaHasta = document.getElementById('filtro-fecha-hasta').value;
+
+            transaccionesFiltradas = transacciones.filter(transaccion => {
+                // Filtro por tipo
+                if (tipoFiltro && transaccion.tipo !== tipoFiltro) return false;
+                
+                // Filtro por cuenta
+                if (cuentaFiltro && transaccion.cuentaId !== parseInt(cuentaFiltro)) return false;
+                
+                // Filtro por fecha
+                const fechaTransaccion = new Date(transaccion.fechaCreacion || Date.now());
+                if (fechaDesde && fechaTransaccion < new Date(fechaDesde)) return false;
+                if (fechaHasta && fechaTransaccion > new Date(fechaHasta + ' 23:59:59')) return false;
+                
+                return true;
+            });
+
+            mostrarTransacciones(transaccionesFiltradas);
+        }
+
+        function abrirModalTransaccion(tipo) {
+            
+            document.getElementById('form-transaccion').reset();
+            
+            // Configurar el tipo de transacción
+            document.getElementById('tipo-transaccion').value = tipo;
+            
+          
+            const tipoTexto = tipo === 'DEPOSITO' ? 'Depósito' : 
+                             tipo === 'RETIRO' ? 'Retiro' : 'Transferencia';
+            document.getElementById('modal-title').textContent = `Nueva ${tipoTexto}`;
+            
+           
+            document.getElementById('modal-transaccion').style.display = 'block';
+            
+            console.log('Modal abierto para tipo:', tipo); 
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-transaccion').style.display = 'none';
+        }
+
+        async function realizarTransaccion(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const datosTransaccion = {
+                cuentaId: parseInt(formData.get('cuentaId')),
+                tipo: formData.get('tipo'),
+                monto: parseFloat(formData.get('monto')),
+                descripcion: formData.get('descripcion') || ''
+            };
+
+            // Debug: mostrar los datos que se están enviando
+            console.log('Datos de transacción:', datosTransaccion);
+
+            // Validaciones básicas
+            const validacionResult = await validarTransaccion(datosTransaccion);
+            if (!validacionResult.valida) {
+                mostrarError(validacionResult.mensaje);
+                return;
+            }
+
+            try {
+                mostrarCargando(true);
+                
+                // Intentar con backend real
+                const response = await api.post('/transacciones', datosTransaccion);
+                
+                mostrarExito(`✅ ${datosTransaccion.tipo} de $${formatearMoneda(datosTransaccion.monto)} realizado exitosamente`);
+                
+                // Actualizar datos
+                await Promise.all([cargarTransacciones(), cargarCuentas()]);
+                
+            } catch (error) {
+                console.warn('Error con backend, usando modo demo:', error.message);
+                
+                // Modo demostracion: simular transacción
+                await simularTransaccion(datosTransaccion);
+                
+                mostrarMensaje(`✅ ${datosTransaccion.tipo} de $${formatearMoneda(datosTransaccion.monto)} realizado (modo demo)`, 'success');
+                
+                actualizarDatosDemo(datosTransaccion);
+            }
+            
+            mostrarCargando(false);
+            cerrarModal();
+        }
+
+        async function validarTransaccion(datos) {
+            // Validar datos básicos
+            if (!datos.cuentaId) {
+                return { valida: false, mensaje: '❌ Debe seleccionar una cuenta' };
+            }
+            
+            if (!datos.tipo || !['DEPOSITO', 'RETIRO'].includes(datos.tipo)) {
+                return { valida: false, mensaje: '❌ Tipo de transacción inválido' };
+            }
+            
+            if (!datos.monto || datos.monto <= 0) {
+                return { valida: false, mensaje: '❌ El monto debe ser mayor a $0' };
+            }
+            
+            // Validación básica de monto mínimo más permisiva
+            if (datos.monto < 1000) { // Reducido a $1,000 para facilitar pruebas
+                return { valida: false, mensaje: `❌ El monto mínimo es $1,000` };
+            }
+
+            // Encontrar la cuenta (solo si hay cuentas cargadas)
+            if (cuentas.length > 0) {
+                const cuenta = cuentas.find(c => c.id === datos.cuentaId);
+                if (!cuenta) {
+                    return { valida: false, mensaje: '❌ Cuenta no encontrada' };
+                }
+
+                // Validar saldo para retiros (solo para cuentas con saldo definido)
+                if (datos.tipo === 'RETIRO' && cuenta.saldo !== undefined) {
+                    if (datos.monto > cuenta.saldo) {
+                        return { valida: false, mensaje: `❌ Saldo insuficiente. Saldo actual: $${formatearMoneda(cuenta.saldo)}` };
+                    }
+                }
+            }
+
+            return { valida: true, mensaje: 'Validación exitosa' };
+        }
+
+        function calcularTransaccionesHoy() {
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            
+            transaccionesHoy = transacciones.filter(t => {
+                const fechaTransaccion = new Date(t.fechaCreacion || t.fecha || Date.now());
+                fechaTransaccion.setHours(0, 0, 0, 0);
+                return fechaTransaccion.getTime() === hoy.getTime();
+            });
+        }
+
+        function calcularTotalTransaccionesHoy(cuentaId) {
+            return transaccionesHoy
+                .filter(t => t.cuentaId === cuentaId)
+                .reduce((total, t) => total + (t.monto || 0), 0);
+        }
+
+        async function simularTransaccion(datos) {
+            // Simular demora de red
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Aquí podrías agregar lógica de simulación más compleja
+            return { success: true, id: Date.now() };
+        }
+
+        function actualizarDatosDemo(datosTransaccion) {
+            // Actualizar cuenta en datos demo
+            const cuenta = cuentas.find(c => c.id === datosTransaccion.cuentaId);
+            if (cuenta) {
+                if (datosTransaccion.tipo === 'DEPOSITO') {
+                    cuenta.saldo += datosTransaccion.monto;
+                } else if (datosTransaccion.tipo === 'RETIRO') {
+                    cuenta.saldo -= datosTransaccion.monto;
+                }
+            }
+
+            // Agregar nueva transacción a la lista demo
+            const nuevaTransaccion = {
+                id: Date.now(),
+                cuentaId: datosTransaccion.cuentaId,
+                tipo: datosTransaccion.tipo,
+                monto: datosTransaccion.monto,
+                descripcion: datosTransaccion.descripcion,
+                saldoFinal: cuenta ? cuenta.saldo : 0,
+                fechaCreacion: new Date()
+            };
+
+            transacciones.unshift(nuevaTransaccion);
+            transaccionesFiltradas = [...transacciones];
+            
+            // Actualizar vistas
+            mostrarTransacciones(transaccionesFiltradas);
+            poblarSelectsCuentas();
+            calcularTransaccionesHoy();
+        }
+
+        function mostrarCargando(mostrar) {
+            const btnSubmit = document.querySelector('#form-transaccion button[type="submit"]');
+            if (mostrar) {
+                btnSubmit.innerHTML = '⏳ Procesando...';
+                btnSubmit.disabled = true;
+            } else {
+                btnSubmit.innerHTML = '💸 Realizar Transacción';
+                btnSubmit.disabled = false;
+            }
+        }
+
+        async function verDetalleTransaccion(id) {
+            try {
+                const response = await api.get(`/transacciones/${id}`);
+                const transaccion = response.data;
+                const cuenta = cuentas.find(c => c.id === transaccion.cuentaId) || {};
+                
+                alert(`Detalle de la Transacción:
+                
+ID: ${transaccion.id}
+Fecha: ${new Date(transaccion.fechaCreacion || Date.now()).toLocaleString()}
+Tipo: ${transaccion.tipo}
+Cuenta: ${transaccion.cuentaId} - ${cuenta.titular || 'Sin titular'}
+Monto: $${formatearMoneda(transaccion.monto || 0)}
+Descripción: ${transaccion.descripcion || 'Sin descripción'}
+Saldo Final: $${formatearMoneda(transaccion.saldoFinal || 0)}`);
+                
+            } catch (error) {
+                mostrarError('Error al obtener el detalle de la transacción: ' + (error.response?.data?.message || error.message));
+            }
+        }
+
+        function formatearMoneda(cantidad) {
+            return cantidad.toLocaleString('es-CO', { minimumFractionDigits: 2 });
+        }
+
+        function mostrarError(mensaje) {
+            document.getElementById('error-container').innerHTML = `
+                <div class="error-message">❌ ${mensaje}</div>
+            `;
+        }
+
+        function mostrarExito(mensaje) {
+            document.getElementById('error-container').innerHTML = `
+                <div class="success-message">✅ ${mensaje}</div>
+            `;
+            setTimeout(() => {
+                document.getElementById('error-container').innerHTML = '';
+            }, 3000);
+        }
+
+        function mostrarMensaje(mensaje, tipo = 'info') {
+            const estilos = {
+                'info': '💡',
+                'warning': '⚠️',
+                'success': '✅',
+                'error': '❌'
+            };
+            
+            document.getElementById('error-container').innerHTML = `
+                <div class="${tipo}-message">${estilos[tipo]} ${mensaje}</div>
+            `;
+            
+            if (tipo !== 'error') {
+                setTimeout(() => {
+                    document.getElementById('error-container').innerHTML = '';
+                }, 5000);
+            }
+        }
+
+        // Cerrar modal con ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                cerrarModal();
+            }
+        });
+
+        // Cerrar modal al hacer clic fuera
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('modal-transaccion');
+            if (event.target === modal) {
+                cerrarModal();
+            }
+        });
+
+        // Validación en tiempo real del monto
+        function validarMontoTiempoReal(input) {
+            const valor = parseFloat(input.value) || 0;
+            const validationDiv = document.getElementById('monto-validation');
+            const submitBtn = document.querySelector('#form-transaccion button[type="submit"]');
+            
+            // Limpiar validación anterior
+            validationDiv.innerHTML = '';
+            validationDiv.className = 'validation-message';
+            
+            if (valor === 0) {
+                submitBtn.disabled = false; // Permitir envío incluso si está vacío para que se valide en el servidor
+                return;
+            }
+            
+            if (valor < 1000) { // Reducido a $1,000
+                validationDiv.innerHTML = `⚠️ Monto mínimo: $1,000`;
+                validationDiv.classList.add('warning');
+                submitBtn.disabled = false; // No bloquear, solo advertir
+                return;
+            }
+            
+            validationDiv.innerHTML = `✅ Monto válido`;
+            validationDiv.classList.add('success');
+            submitBtn.disabled = false;
+        }
+
+        // Validar saldo en tiempo real para retiros
+        function validarSaldoRetiro() {
+            const cuentaId = parseInt(document.getElementById('cuenta-id').value);
+            const tipo = document.getElementById('tipo').value;
+            const monto = parseFloat(document.getElementById('monto').value) || 0;
+            
+            if (tipo === 'RETIRO' && cuentaId && monto > 0) {
+                const cuenta = cuentas.find(c => c.id === cuentaId);
+                if (cuenta && monto > cuenta.saldo) {
+                    const validationDiv = document.getElementById('monto-validation');
+                    validationDiv.innerHTML = `❌ Saldo insuficiente. Disponible: $${formatearMoneda(cuenta.saldo)}`;
+                    validationDiv.className = 'validation-message error';
+                    document.querySelector('#form-transaccion button[type="submit"]').disabled = true;
+                }
+            }
+        }
+
+        // Event listeners para validación en tiempo real
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('cuenta-id').addEventListener('change', validarSaldoRetiro);
+            document.getElementById('tipo').addEventListener('change', validarSaldoRetiro);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movimientos por Cuenta - Gestor Bancario</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .account-selector {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .selector-title {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .accounts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .account-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .account-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .account-card.selected {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.1);
+        }
+
+        .account-number {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .account-holder {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .account-balance {
+            color: #4ade80;
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .account-type {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+
+        .movements-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .movements-section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .account-summary {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .summary-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .depositos { color: #28a745; }
+        .retiros { color: #dc3545; }
+        .total-movimientos { color: #007bff; }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+        }
+
+        .filter-group select option {
+            background: #333;
+            color: white;
+        }
+
+        .movements-table {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .movement-type {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .type-deposito {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .type-retiro {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .type-transferencia {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .btn {
+            background: rgba(40, 167, 69, 0.8);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: rgba(40, 167, 69, 1);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(108, 117, 125, 0.8);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(108, 117, 125, 1);
+        }
+
+        .btn-primary {
+            background: rgba(0, 123, 255, 0.8);
+        }
+
+        .btn-primary:hover {
+            background: rgba(0, 123, 255, 1);
+        }
+
+        .loading {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 40px;
+            font-size: 1.1rem;
+        }
+
+        .error-message {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .success-message {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            color: #28a745;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .export-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/dashboard" class="back-btn">
+                ← Volver al Dashboard
+            </a>
+            <h1>📊 Movimientos por Cuenta</h1>
+            <p>Consulta los movimientos de cada cuenta específica</p>
+        </div>
+
+      
+        <div class="account-selector">
+            <h2 class="selector-title">Selecciona una cuenta para ver sus movimientos</h2>
+            <div id="accounts-loading" class="loading">
+                Cargando cuentas...
+            </div>
+            <div id="accounts-grid" class="accounts-grid" style="display: none;">
+                
+            </div>
+        </div>
+
+        
+        <div id="movements-section" class="movements-section">
+            <div class="section-header">
+                <h2 class="section-title">💳 Movimientos de la Cuenta <span id="selected-account-number"></span></h2>
+                <div class="export-actions">
+                    <button class="btn btn-secondary" onclick="cargarMovimientos()">
+                        🔄 Actualizar
+                    </button>
+                </div>
+            </div>
+
+           
+            <div id="account-summary" class="account-summary">
+                <div class="summary-item">
+                    <div class="summary-value depositos" id="total-depositos">$0</div>
+                    <div class="summary-label">Total Depósitos</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value retiros" id="total-retiros">$0</div>
+                    <div class="summary-label">Total Retiros</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value total-movimientos" id="total-movimientos">0</div>
+                    <div class="summary-label">Total Movimientos</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="saldo-actual">$0</div>
+                    <div class="summary-label">Saldo Actual</div>
+                </div>
+            </div>
+
+           
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Tipo:</label>
+                    <select id="filtro-tipo" onchange="filtrarMovimientos()">
+                        <option value="">Todos</option>
+                        <option value="DEPOSITO">Depósitos</option>
+                        <option value="RETIRO">Retiros</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Desde:</label>
+                    <input type="date" id="filtro-fecha-desde" onchange="filtrarMovimientos()">
+                </div>
+                <div class="filter-group">
+                    <label>Hasta:</label>
+                    <input type="date" id="filtro-fecha-hasta" onchange="filtrarMovimientos()">
+                </div>
+                <div class="filter-group">
+                    <label>Monto mínimo:</label>
+                    <input type="number" id="filtro-monto-min" step="0.01" placeholder="0.00" onchange="filtrarMovimientos()">
+                </div>
+            </div>
+
+            <div id="movements-loading" class="loading" style="display: none;">
+                Cargando movimientos...
+            </div>
+
+            <div id="error-container"></div>
+
+            <div id="movements-container" style="display: none;">
+                <div class="movements-table">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Monto</th>
+                                <th>Descripción</th>
+                                <th>Saldo Resultante</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movements-tbody">
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="movements-empty-state" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">📊</div>
+                <h2>No hay movimientos</h2>
+                <p>Esta cuenta no tiene movimientos registrados</p>
+                <button class="btn" onclick="window.location.href='/transacciones'" style="margin-top: 20px;">
+                    💰 Realizar Transacción
+                </button>
+            </div>
+        </div>
+    </div>
+
+   
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
+    <script>
+        // Configurar Axios
+        const api = axios.create({
+            baseURL: 'http://localhost:8090',
+            timeout: 10000,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        // Datos demostracion para cuando el backend no esté disponible
+        const cuentasDemo = [
+            { id: 1, numeroCuenta: '123456789', titular: 'Ana García', saldo: 250000, tipoCuenta: 'Ahorro' },
+            { id: 2, numeroCuenta: '987654321', titular: 'Carlos López', saldo: 580000, tipoCuenta: 'Corriente' },
+            { id: 3, numeroCuenta: '456789123', titular: 'María Rodríguez', saldo: 125000, tipoCuenta: 'Ahorro' }
+        ];
+
+        const transaccionesDemo = [
+            { id: 1, cuentaId: 1, tipo: 'DEPOSITO', monto: 50000, descripcion: 'Depósito inicial', fechaCreacion: '2024-10-15T10:30:00Z', saldoFinal: 250000 },
+            { id: 2, cuentaId: 1, tipo: 'RETIRO', monto: 20000, descripcion: 'Retiro cajero', fechaCreacion: '2024-10-14T14:20:00Z', saldoFinal: 200000 },
+            { id: 3, cuentaId: 2, tipo: 'DEPOSITO', monto: 100000, descripcion: 'Transferencia recibida', fechaCreacion: '2024-10-13T09:15:00Z', saldoFinal: 580000 },
+            { id: 4, cuentaId: 2, tipo: 'RETIRO', monto: 30000, descripcion: 'Pago servicios', fechaCreacion: '2024-10-12T16:45:00Z', saldoFinal: 480000 },
+            { id: 5, cuentaId: 3, tipo: 'DEPOSITO', monto: 75000, descripcion: 'Depósito nómina', fechaCreacion: '2024-10-11T08:00:00Z', saldoFinal: 125000 }
+        ];
+
+        let cuentas = [];
+        let movimientos = [];
+        let movimientosFiltrados = [];
+        let cuentaSeleccionada = null;
+        let modoDemo = false;
+
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarCuentas();
+        });
+
+        async function cargarCuentas() {
+            try {
+                document.getElementById('accounts-loading').style.display = 'block';
+                document.getElementById('accounts-grid').style.display = 'none';
+
+                const response = await api.get('/cuentas');
+                cuentas = response.data;
+                modoDemo = false;
+
+                document.getElementById('accounts-loading').style.display = 'none';
+
+                if (cuentas.length === 0) {
+                    document.getElementById('accounts-grid').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💳</div>
+                            <h2>No hay cuentas</h2>
+                            <p>Primero debes crear cuentas bancarias</p>
+                            <button class="btn" onclick="window.location.href='/cuentas'" style="margin-top: 20px;">
+                                ➕ Crear Cuenta
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    mostrarCuentas();
+                }
+
+                document.getElementById('accounts-grid').style.display = 'grid';
+
+            } catch (error) {
+                console.log('Backend no disponible, usando datos demo...');
+                
+                // Usar datos demostracion
+                cuentas = cuentasDemo;
+                modoDemo = true;
+                
+                document.getElementById('accounts-loading').style.display = 'none';
+                mostrarCuentas();
+                document.getElementById('accounts-grid').style.display = 'grid';
+                
+                // Mostrar notificación de modo demostracion
+                mostrarNotificacion('⚠️ Modo Demo - El backend no está disponible', 'warning');
+            }
+        }
+
+        function mostrarCuentas() {
+            const grid = document.getElementById('accounts-grid');
+            
+            grid.innerHTML = cuentas.map(cuenta => `
+                <div class="account-card" onclick="seleccionarCuenta(${cuenta.id})" id="account-${cuenta.id}">
+                    <div class="account-number">Cuenta ${cuenta.id}</div>
+                    <div class="account-holder">${cuenta.titular || 'Sin titular'}</div>
+                    <div class="account-balance">$${formatearMoneda(cuenta.saldo || 0)}</div>
+                    <div class="account-type">${cuenta.tipoCuenta || 'Tipo no especificado'}</div>
+                </div>
+            `).join('');
+        }
+
+        function seleccionarCuenta(cuentaId) {
+            
+            document.querySelectorAll('.account-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            
+            document.getElementById(`account-${cuentaId}`).classList.add('selected');
+            
+            cuentaSeleccionada = cuentas.find(c => c.id === cuentaId);
+            document.getElementById('selected-account-number').textContent = cuentaId;
+            
+            // Mostrar sección de movimientos
+            document.getElementById('movements-section').classList.add('active');
+            
+            // Cargar movimientos de la cuenta
+            cargarMovimientos();
+        }
+
+        async function cargarMovimientos() {
+            if (!cuentaSeleccionada) return;
+
+            try {
+                document.getElementById('movements-loading').style.display = 'block';
+                document.getElementById('movements-container').style.display = 'none';
+                document.getElementById('movements-empty-state').style.display = 'none';
+                document.getElementById('error-container').innerHTML = '';
+
+                if (modoDemo) {
+                    // Usar datos demostracion
+                    movimientos = transaccionesDemo.filter(t => t.cuentaId === cuentaSeleccionada.id);
+                } else {
+                    // Cargar todas las transacciones y filtrar por cuenta
+                    const response = await api.get('/transacciones');
+                    const todasTransacciones = response.data;
+                    movimientos = todasTransacciones.filter(t => t.cuentaId === cuentaSeleccionada.id);
+                }
+                
+                movimientosFiltrados = [...movimientos];
+
+                document.getElementById('movements-loading').style.display = 'none';
+
+                if (movimientos.length === 0) {
+                    document.getElementById('movements-empty-state').style.display = 'block';
+                } else {
+                    actualizarResumen();
+                    mostrarMovimientos(movimientosFiltrados);
+                    document.getElementById('movements-container').style.display = 'block';
+                }
+
+            } catch (error) {
+                console.log('Error al cargar movimientos, usando datos demo...');
+                
+              
+                movimientos = transaccionesDemo.filter(t => t.cuentaId === cuentaSeleccionada.id);
+                movimientosFiltrados = [...movimientos];
+                
+                document.getElementById('movements-loading').style.display = 'none';
+                
+                if (movimientos.length === 0) {
+                    document.getElementById('movements-empty-state').style.display = 'block';
+                } else {
+                    actualizarResumen();
+                    mostrarMovimientos(movimientosFiltrados);
+                    document.getElementById('movements-container').style.display = 'block';
+                }
+                
+                mostrarNotificacion('⚠️ Usando datos demo para movimientos', 'warning');
+            }
+        }
+
+        function actualizarResumen() {
+            const depositos = movimientos.filter(m => m.tipo === 'DEPOSITO');
+            const retiros = movimientos.filter(m => m.tipo === 'RETIRO');
+            
+            const totalDepositos = depositos.reduce((sum, m) => sum + (m.monto || 0), 0);
+            const totalRetiros = retiros.reduce((sum, m) => sum + (m.monto || 0), 0);
+            
+            document.getElementById('total-depositos').textContent = '$' + formatearMoneda(totalDepositos);
+            document.getElementById('total-retiros').textContent = '$' + formatearMoneda(totalRetiros);
+            document.getElementById('total-movimientos').textContent = movimientos.length;
+            document.getElementById('saldo-actual').textContent = '$' + formatearMoneda(cuentaSeleccionada.saldo || 0);
+        }
+
+        function mostrarMovimientos(movimientosAMostrar) {
+            const tbody = document.getElementById('movements-tbody');
+            
+            if (movimientosAMostrar.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">No se encontraron movimientos</td></tr>';
+                return;
+            }
+
+            
+            movimientosAMostrar.sort((a, b) => new Date(b.fechaCreacion || 0) - new Date(a.fechaCreacion || 0));
+
+            tbody.innerHTML = movimientosAMostrar.map(movimiento => {
+                const fecha = new Date(movimiento.fechaCreacion || Date.now()).toLocaleDateString();
+                const fechaHora = new Date(movimiento.fechaCreacion || Date.now()).toLocaleString();
+                
+                return `
+                    <tr>
+                        <td>${movimiento.id}</td>
+                        <td title="${fechaHora}">${fecha}</td>
+                        <td><span class="movement-type type-${(movimiento.tipo || 'deposito').toLowerCase()}">${movimiento.tipo || 'DEPOSITO'}</span></td>
+                        <td>$${formatearMoneda(movimiento.monto || 0)}</td>
+                        <td>${movimiento.descripcion || 'Sin descripción'}</td>
+                        <td>$${formatearMoneda(movimiento.saldoFinal || 0)}</td>
+                        <td>
+                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="verDetalleMovimiento(${movimiento.id})">
+                                👁️ Ver
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filtrarMovimientos() {
+            const tipoFiltro = document.getElementById('filtro-tipo').value;
+            const fechaDesde = document.getElementById('filtro-fecha-desde').value;
+            const fechaHasta = document.getElementById('filtro-fecha-hasta').value;
+            const montoMin = parseFloat(document.getElementById('filtro-monto-min').value) || 0;
+
+            movimientosFiltrados = movimientos.filter(movimiento => {
+                // Filtro por tipo
+                if (tipoFiltro && movimiento.tipo !== tipoFiltro) return false;
+                
+                // Filtro por fecha
+                const fechaMovimiento = new Date(movimiento.fechaCreacion || Date.now());
+                if (fechaDesde && fechaMovimiento < new Date(fechaDesde)) return false;
+                if (fechaHasta && fechaMovimiento > new Date(fechaHasta + ' 23:59:59')) return false;
+                
+                // Filtro por monto mínimo
+                if (montoMin && (movimiento.monto || 0) < montoMin) return false;
+                
+                return true;
+            });
+
+            mostrarMovimientos(movimientosFiltrados);
+        }
+
+        async function verDetalleMovimiento(id) {
+            try {
+                const response = await api.get(`/transacciones/${id}`);
+                const movimiento = response.data;
+                
+                alert(`Detalle del Movimiento:
+                
+ID: ${movimiento.id}
+Fecha: ${new Date(movimiento.fechaCreacion || Date.now()).toLocaleString()}
+Tipo: ${movimiento.tipo}
+Cuenta: ${movimiento.cuentaId} - ${cuentaSeleccionada.titular || 'Sin titular'}
+Monto: $${formatearMoneda(movimiento.monto || 0)}
+Descripción: ${movimiento.descripcion || 'Sin descripción'}
+Saldo Resultante: $${formatearMoneda(movimiento.saldoFinal || 0)}`);
+                
+            } catch (error) {
+                mostrarError('Error al obtener el detalle del movimiento: ' + (error.response?.data?.message || error.message));
+            }
+        }
+
+        function formatearMoneda(cantidad) {
+            return cantidad.toLocaleString('es-CO', { minimumFractionDigits: 2 });
+        }
+
+        function mostrarError(mensaje) {
+            document.getElementById('error-container').innerHTML = `
+                <div class="error-message">❌ ${mensaje}</div>
+            `;
+        }
+
+        function mostrarExito(mensaje) {
+            document.getElementById('error-container').innerHTML = `
+                <div class="success-message">✅ ${mensaje}</div>
+            `;
+            setTimeout(() => {
+                document.getElementById('error-container').innerHTML = '';
+            }, 3000);
+        }
+
+        function mostrarNotificacion(mensaje, tipo = 'info') {
+            const className = tipo === 'warning' ? 'error-message' : 'success-message';
+            document.getElementById('error-container').innerHTML = `
+                <div class="${className}">${mensaje}</div>
+            `;
+            setTimeout(() => {
+                document.getElementById('error-container').innerHTML = '';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

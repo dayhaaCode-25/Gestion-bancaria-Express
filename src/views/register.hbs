@@ -1,0 +1,126 @@
+<div class="register-form">
+    <div class="register-header">
+        <h1>Gestor Bancario</h1>
+        <h2>Crear Cuenta</h2>
+        <p>Completa el formulario para registrarte</p>
+    </div>
+    
+    <form id="registerForm" class="auth-form">
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+        <div id="successMessage" class="success-message" style="display: none;"></div>
+        
+        <div class="form-group">
+            <label for="nombre">
+                <i class="fas fa-user"></i>
+                Nombre Completo
+            </label>
+            <input type="text" id="nombre" name="nombre" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">
+                <i class="fas fa-envelope"></i>
+                Correo Electrónico
+            </label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="telefono">
+                <i class="fas fa-phone"></i>
+                Teléfono
+            </label>
+            <input type="tel" id="telefono" name="telefono" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="documento">
+                <i class="fas fa-id-card"></i>
+                Documento de Identidad
+            </label>
+            <input type="text" id="documento" name="documento" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">
+                <i class="fas fa-lock"></i>
+                Contraseña
+            </label>
+            <input type="password" id="password" name="password" required minlength="6">
+        </div>
+        
+        <div class="form-group">
+            <label for="confirmPassword">
+                <i class="fas fa-lock"></i>
+                Confirmar Contraseña
+            </label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required>
+        </div>
+        
+        <button type="submit" class="btn-primary" id="registerBtn">
+            <i class="fas fa-user-plus"></i>
+            Registrarse
+        </button>
+    </form>
+    
+    <div class="auth-footer">
+        <p>¿Ya tienes una cuenta? <a href="/">Inicia sesión aquí</a></p>
+    </div>
+</div>
+
+<script>
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const userData = Object.fromEntries(formData);
+    const errorDiv = document.getElementById('errorMessage');
+    const successDiv = document.getElementById('successMessage');
+    const registerBtn = document.getElementById('registerBtn');
+    
+    // Limpiar mensajes anteriores
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+    
+    // Validar contraseñas
+    if (userData.password !== userData.confirmPassword) {
+        errorDiv.textContent = 'Las contraseñas no coinciden';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    registerBtn.disabled = true;
+    registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
+    
+    try {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            successDiv.textContent = 'Registro exitoso. Redirigiendo...';
+            successDiv.style.display = 'block';
+            // Redirigir al login después de 2 segundos
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        } else {
+            errorDiv.textContent = data.message;
+            errorDiv.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        errorDiv.textContent = 'Error de conexión. Inténtalo de nuevo.';
+        errorDiv.style.display = 'block';
+    } finally {
+        registerBtn.disabled = false;
+        registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> Registrarse';
+    }
+});
+</script>

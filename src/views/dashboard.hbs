@@ -1,0 +1,438 @@
+<div class="dashboard">
+    <nav id="menuLateral" class="sidebar">
+        <div class="sidebar-content">
+            <button onclick="mostrarInicio()" class="sidebar-btn active">
+                <span class="btn-icon">
+                    <i class="fas fa-home"></i>
+                </span>
+                <span class="btn-text">Inicio</span>
+            </button>
+            
+            <button onclick="window.location.href='/cuentas'" class="sidebar-btn">
+                <span class="btn-icon">
+                    <i class="fas fa-credit-card"></i>
+                </span>
+                <span class="btn-text">Gestión de Cuentas</span>
+            </button>
+            
+            <button onclick="window.location.href='/transacciones'" class="sidebar-btn">
+                <span class="btn-icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                </span>
+                <span class="btn-text">Depósitos & Retiros</span>
+            </button>
+            
+            <button onclick="window.location.href='/movimientos'" class="sidebar-btn">
+                <span class="btn-icon">
+                    <i class="fas fa-chart-line"></i>
+                </span>
+                <span class="btn-text">Movimientos</span>
+            </button>
+            
+            
+            <div class="sidebar-separator" style="height: 1px; background: rgba(255, 255, 255, 0.2); margin: 15px 10px; border-radius: 1px;"></div>
+            
+            <button onclick="configuracionUsuario()" class="sidebar-btn">
+                <span class="btn-icon">
+                    <i class="fas fa-cog"></i>
+                </span>
+                <span class="btn-text">Configuración</span>
+            </button>
+            
+            <button onclick="cerrarSesion()" class="sidebar-btn logout-btn">
+                <span class="btn-icon">
+                    <i class="fas fa-sign-out-alt"></i>
+                </span>
+                <span class="btn-text">Cerrar sesión</span>
+            </button>
+        </div>
+    </nav>
+    
+    <div class="main-content">
+        
+        <div class="welcome-section">
+            <div class="welcome-card">
+                <h1>Bienvenido <span id="nombreUsuario"></span></h1>
+                <p>Hola! Bienvenido(a) a tu espacio bancario. Aquí puedes tener el control de tu dinero, todo en un solo lugar.<br>Estamos para acompañarte y ayudarte a manejar tus finanzas de forma simple y segura.</p>
+            </div>
+        </div>
+
+        <!-- Panel Principal - Datos de la cuenta -->
+        <section id="cuadroPrincipal" class="section-card">
+            <div class="card-content">
+                <h2>Datos de la cuenta</h2>
+                <div class="account-info">
+                    <p><strong>Número de cuenta:</strong> <span id="numeroCuenta"></span></p>
+                    <p><strong>Saldo:</strong> $<span id="saldoCuenta"></span></p>
+                    <p><strong>Nombre completo:</strong> <span id="nombreCompleto"></span></p>
+                    <p><strong>Estado de la cuenta:</strong> <span id="estadoCuenta">Activa</span></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel de Configuración -->
+        <section id="configuracionMenu" class="section-card" style="display:none;">
+            <div class="card-content">
+                <h2>Configuración de usuario</h2>
+                
+                <div class="config-section">
+                    <h3>Información de la cuenta</h3>
+                    <div class="info-grid">
+                        <p><strong>Número de cuenta:</strong> <span id="confNumeroCuenta"></span></p>
+                        <p><strong>Tipo de cuenta:</strong> <span id="confTipoCuenta">Ahorros</span></p>
+                        <p><strong>Saldo actual:</strong> $<span id="confSaldoCuenta"></span></p>
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <h3>Información personal</h3>
+                    <div class="info-grid">
+                        <p><strong>Nombre completo:</strong> <span id="confNombreCompleto"></span></p>
+                        <p><strong>Email:</strong> <span id="confEmailUsuario"></span></p>
+                        <p><strong>Fecha de creación:</strong> <span id="confFechaCreacion"></span></p>
+                        <p><strong>Estado de la cuenta:</strong> <span id="confEstadoCuenta"></span></p>
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <h3>Cambiar contraseña</h3>
+                    <div class="password-form">
+                        <input type="password" id="nuevaContrasena" placeholder="Nueva contraseña" class="form-input">
+                        <button id="btnCambiarContrasena" class="btn-primary">Cambiar</button>
+                    </div>
+                    <div id="mensajeCambioContrasena" class="success-message" style="display:none;">
+                        Contraseña cambiada correctamente.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel de Transacciones -->
+        <section id="transaccionesMenu" class="section-card" style="display:none;">
+            <div class="card-content">
+                <h2>Transacciones</h2>
+                
+                <form id="formTransaccion" class="transaction-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tipoTransaccion">Tipo de transacción</label>
+                            <select id="tipoTransaccion" class="form-input">
+                                <option value="deposito">Depósito</option>
+                                <option value="retiro">Retiro</option>
+                                <option value="transferencia">Transferencia</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="montoTransaccion">Monto</label>
+                            <input type="number" id="montoTransaccion" placeholder="Monto" min="1" class="form-input">
+                        </div>
+                        
+                        <div class="form-group" id="cuentaDestinoGroup" style="display:none;">
+                            <label for="cuentaDestino">Cuenta destino</label>
+                            <input type="text" id="cuentaDestino" placeholder="Número de cuenta" class="form-input">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="descripcionTransaccion">Descripción (opcional)</label>
+                            <input type="text" id="descripcionTransaccion" placeholder="Descripción" class="form-input">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-check"></i>
+                        Ejecutar transacción
+                    </button>
+                </form>
+                
+                <div class="transactions-section">
+                    <h3>Historial de transacciones</h3>
+                    <div id="lista-transacciones" class="transactions-list">
+                       
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script>
+
+let usuarioActual = null;
+let cuentaActual = null;
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    verificarAutenticacion();
+    cargarDatosUsuario();
+    configurarEventListeners();
+});
+
+// Verificar si el usuario está autenticado
+function verificarAutenticacion() {
+    const usuario = localStorage.getItem('usuario');
+    if (!usuario) {
+        window.location.href = '/';
+        return;
+    }
+    usuarioActual = JSON.parse(usuario);
+}
+
+// Cargar datos del usuario
+async function cargarDatosUsuario() {
+    if (!usuarioActual) return;
+    
+    try {
+        // Cargar información del usuario
+        const userResponse = await fetch(`/api/users/${usuarioActual.id}`);
+        const userData = await userResponse.json();
+        
+        if (userData.success) {
+            // Cargar cuentas del usuario
+            const accountsResponse = await fetch(`/api/accounts/${usuarioActual.id}`);
+            const accountsData = await accountsResponse.json();
+            
+            if (accountsData.success && accountsData.data.length > 0) {
+                cuentaActual = accountsData.data[0]; // Tomar la primera cuenta
+                actualizarInterfaz(userData.data, cuentaActual);
+            }
+        }
+    } catch (error) {
+        console.error('Error cargando datos:', error);
+        // Usar datos del localStorage como fallback
+        actualizarInterfazFallback();
+    }
+}
+
+// Actualizar interfaz con datos reales
+function actualizarInterfaz(usuario, cuenta) {
+    document.getElementById('nombreUsuario').textContent = usuario.nombre || usuarioActual.nombre;
+    document.getElementById('numeroCuenta').textContent = cuenta.numeroCuenta || 'No disponible';
+    document.getElementById('saldoCuenta').textContent = cuenta.saldo?.toLocaleString() || '0';
+    document.getElementById('nombreCompleto').textContent = usuario.nombre || usuarioActual.nombre;
+    document.getElementById('estadoCuenta').textContent = cuenta.estado || 'Activa';
+    
+    // Configuración
+    document.getElementById('confNumeroCuenta').textContent = cuenta.numeroCuenta || 'No disponible';
+    document.getElementById('confTipoCuenta').textContent = cuenta.tipoCuenta || 'Ahorros';
+    document.getElementById('confSaldoCuenta').textContent = cuenta.saldo?.toLocaleString() || '0';
+    document.getElementById('confNombreCompleto').textContent = usuario.nombre || usuarioActual.nombre;
+    document.getElementById('confEmailUsuario').textContent = usuario.email || usuarioActual.email;
+    document.getElementById('confFechaCreacion').textContent = formatearFecha(usuario.fechaCreacion || new Date());
+    document.getElementById('confEstadoCuenta').textContent = cuenta.estado || 'Activa';
+}
+
+// Fallback usando localStorage
+function actualizarInterfazFallback() {
+    if (!usuarioActual) return;
+    
+    document.getElementById('nombreUsuario').textContent = usuarioActual.nombre || '';
+    document.getElementById('numeroCuenta').textContent = usuarioActual.cuenta || '';
+    document.getElementById('saldoCuenta').textContent = usuarioActual.saldo || '';
+    document.getElementById('nombreCompleto').textContent = usuarioActual.nombre || '';
+    document.getElementById('estadoCuenta').textContent = 'Activa';
+}
+
+
+function configurarEventListeners() {
+    // Cambio de tipo de transacción
+    document.getElementById('tipoTransaccion').addEventListener('change', function() {
+        const cuentaDestinoGroup = document.getElementById('cuentaDestinoGroup');
+        if (this.value === 'transferencia') {
+            cuentaDestinoGroup.style.display = 'block';
+        } else {
+            cuentaDestinoGroup.style.display = 'none';
+        }
+    });
+    
+    // Formulario de transacciones
+    document.getElementById('formTransaccion').addEventListener('submit', realizarTransaccion);
+    
+    // Cambiar contraseña
+    document.getElementById('btnCambiarContrasena').addEventListener('click', cambiarContrasena);
+}
+
+// Funciones de navegación
+function mostrarInicio() {
+    document.getElementById('cuadroPrincipal').style.display = 'block';
+    document.getElementById('transaccionesMenu').style.display = 'none';
+    document.getElementById('configuracionMenu').style.display = 'none';
+    
+    // Actualizar botones activos
+    document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector('[onclick="mostrarInicio()"]').classList.add('active');
+}
+
+function mostrarTransaccionesMenu() {
+    document.getElementById('cuadroPrincipal').style.display = 'none';
+    document.getElementById('transaccionesMenu').style.display = 'block';
+    document.getElementById('configuracionMenu').style.display = 'none';
+    
+    // Actualizar botones activos
+    document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector('[onclick="mostrarTransaccionesMenu()"]').classList.add('active');
+    
+    cargarTransacciones();
+}
+
+function configuracionUsuario() {
+    document.getElementById('cuadroPrincipal').style.display = 'none';
+    document.getElementById('transaccionesMenu').style.display = 'none';
+    document.getElementById('configuracionMenu').style.display = 'block';
+    
+    // Actualizar botones activos
+    document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector('[onclick="configuracionUsuario()"]').classList.add('active');
+    
+    document.getElementById('mensajeCambioContrasena').style.display = 'none';
+}
+
+// Realizar transacción
+async function realizarTransaccion(e) {
+    e.preventDefault();
+    
+    if (!cuentaActual) {
+        alert('No se pudo obtener información de la cuenta');
+        return;
+    }
+    
+    const tipo = document.getElementById('tipoTransaccion').value;
+    const monto = parseFloat(document.getElementById('montoTransaccion').value);
+    const descripcion = document.getElementById('descripcionTransaccion').value || '';
+    const cuentaDestino = document.getElementById('cuentaDestino').value;
+    
+    if (!monto || monto <= 0) {
+        alert('Por favor ingrese un monto válido');
+        return;
+    }
+    
+    if (tipo === 'transferencia' && !cuentaDestino) {
+        alert('Por favor ingrese la cuenta de destino');
+        return;
+    }
+    
+    try {
+        let url = '';
+        let body = {};
+        
+        switch (tipo) {
+            case 'deposito':
+                url = '/api/transactions/deposit';
+                body = { accountId: cuentaActual.id, amount: monto, description: descripcion };
+                break;
+            case 'retiro':
+                url = '/api/transactions/withdraw';
+                body = { accountId: cuentaActual.id, amount: monto, description: descripcion };
+                break;
+            case 'transferencia':
+                url = '/api/transactions/transfer';
+                body = { 
+                    fromAccountId: cuentaActual.id, 
+                    toAccountNumber: cuentaDestino, 
+                    amount: monto, 
+                    description: descripcion 
+                };
+                break;
+        }
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Transacción realizada exitosamente');
+            document.getElementById('formTransaccion').reset();
+            cargarDatosUsuario(); // Actualizar saldo
+            cargarTransacciones(); // Actualizar historial
+        } else {
+            alert(data.message);
+        }
+    } catch (error) {
+        console.error('Error en transacción:', error);
+        alert('Error realizando la transacción');
+    }
+}
+
+// Cargar historial de transacciones
+async function cargarTransacciones() {
+    if (!cuentaActual) return;
+    
+    try {
+        const response = await fetch(`/api/transactions/${cuentaActual.id}`);
+        const data = await response.json();
+        
+        const lista = document.getElementById('lista-transacciones');
+        
+        if (data.success && data.data.length > 0) {
+            lista.innerHTML = data.data.map(transaccion => `
+                <div class="transaction-item">
+                    <div class="transaction-info">
+                        <span class="transaction-type ${transaccion.tipo?.toLowerCase()}">${transaccion.tipo}</span>
+                        <span class="transaction-description">${transaccion.descripcion || 'Sin descripción'}</span>
+                    </div>
+                    <div class="transaction-details">
+                        <span class="transaction-amount">$${transaccion.monto?.toLocaleString()}</span>
+                        <span class="transaction-date">${formatearFecha(transaccion.fechaTransaccion)}</span>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            lista.innerHTML = '<p class="no-transactions">No hay transacciones registradas</p>';
+        }
+    } catch (error) {
+        console.error('Error cargando transacciones:', error);
+        document.getElementById('lista-transacciones').innerHTML = '<p class="error">Error cargando transacciones</p>';
+    }
+}
+
+// Cambiar contraseña
+async function cambiarContrasena() {
+    const nuevaContrasena = document.getElementById('nuevaContrasena').value;
+    
+    if (!nuevaContrasena || nuevaContrasena.length < 6) {
+        alert('La contraseña debe tener al menos 6 caracteres.');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/users/${usuarioActual.id}/password`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                currentPassword: '', // En un caso real, pedirías la contraseña actual
+                newPassword: nuevaContrasena 
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('mensajeCambioContrasena').style.display = 'block';
+            document.getElementById('nuevaContrasena').value = '';
+        } else {
+            alert(data.message);
+        }
+    } catch (error) {
+        console.error('Error cambiando contraseña:', error);
+        alert('Error cambiando la contraseña');
+    }
+}
+
+// Cerrar sesión
+function cerrarSesion() {
+    localStorage.removeItem('usuario');
+    window.location.href = '/';
+}
+
+function formatearFecha(fecha) {
+    if (!fecha) return 'No disponible';
+    return new Date(fecha).toLocaleDateString('es-ES');
+}
+
+// Inicializar con la vista de inicio
+window.addEventListener('DOMContentLoaded', mostrarInicio);
+</script>

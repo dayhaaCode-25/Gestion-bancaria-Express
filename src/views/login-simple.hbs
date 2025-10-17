@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Gestor Bancario</title>
-    <link rel="stylesheet" href="/auth.css">
+    <link rel="stylesheet" href="/css/auth.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body class="auth-body">
     <div class="auth-container">
@@ -62,12 +63,15 @@
             </form>
             
             <div class="auth-footer">
-                <p>¿No tienes una cuenta? <a href="/registro.html">Regístrate aquí</a></p>
+                <p>¿No tienes una cuenta? <a href="/registro">Regístrate aquí</a></p>
             </div>
         </div>
     </div>
 
     <script>
+    // Configuración dinámica del backend
+    const API_BASE_URL = '{{API_BASE_URL}}';
+    
     // Función para llenar credenciales automáticamente
     function llenarCredenciales(usuario, password) {
         document.getElementById('inputUsuario').value = usuario;
@@ -97,9 +101,10 @@
         mensajeError.style.display = 'none';
         mensajeExito.style.display = 'none';
         
-        // verificar valores
+        // Debug: verificar valores
         console.log('Valores del formulario:', { usuario, password });
         
+        // Validación básica
         if (!usuario || !password) {
             console.log('Validación falló:', { usuario: !!usuario, password: !!password });
             mensajeError.textContent = 'Usuario y contraseña son requeridos';
@@ -110,7 +115,7 @@
         botonLogin.disabled = true;
         botonLogin.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
         
-        // Credenciales demo válidas (sin conexión al servidor)
+        // Credenciales demostracion válidas (modo offline)
         const credencialesDemo = [
             { usuario: 'admin', password: '1234', nombre: 'Administrador', rol: 'admin' },
             { usuario: 'demo', password: 'demo123', nombre: 'Usuario Demo', rol: 'user' },
@@ -118,13 +123,12 @@
         ];
         
         setTimeout(() => {
-            // Verificar credenciales demo
+            // Verificar credenciales demostracion
             const usuarioValido = credencialesDemo.find(cred => 
                 cred.usuario === usuario && cred.password === password
             );
             
             if (usuarioValido) {
-                
                 // Guardar datos del usuario en localStorage
                 const userData = {
                     id: Math.floor(Math.random() * 1000),
@@ -141,7 +145,7 @@
                 
                 // Redirigir al dashboard
                 setTimeout(() => {
-                    window.location.href = '/index.html';
+                    window.location.href = '/dashboard';
                 }, 1000);
             } else {
                 mensajeError.textContent = '❌ Credenciales inválidas. Usa: admin/1234, demo/demo123 o dayhana/dayhana123';
@@ -152,9 +156,7 @@
             botonLogin.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
         }, 800);
     });
-    </script>
-
-    <style>
+</script>    <style>
     .demo-credentials {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
